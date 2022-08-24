@@ -98,7 +98,7 @@
 					"name": "punctuation.colon.aecor"
 				}
 			},
-			"end": "((?:\\+|\\-|\\*|\\/|%)?=)",
+			"end": "((?:\\+|\\-|\\*|\\/|%)?=)|\\n",
 			"endCaptures": {
 				"1": {
 					"name": "keyword.operator.assignment.aecor"
