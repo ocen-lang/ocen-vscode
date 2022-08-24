@@ -106,7 +106,7 @@
 			},
 			"patterns": [
 				{
-					"include": "#types"
+					"include": "$self"
 				}
 			]
 		},
@@ -394,7 +394,7 @@
 					},
 					"patterns": [
 						{
-							"include": "$self"
+							"include": "#types"
 						}
 					]
 				}
@@ -617,7 +617,7 @@
 			"patterns": [
 				{
 					"name": "meta.control.aecor",
-					"match": "\\b(if|else|while|for|defer|match)\\b(?=.*?(?:\\{|$))",
+					"match": "\\b(if|then|else|while|for|defer|match)\\b(?=.*?(?:\\{|$))",
 					"captures": {
 						"1": {
 							"name": "keyword.control.block.aecor"
@@ -634,7 +634,34 @@
 				},
 				{
 					"name": "keyword.control.extern.aecor",
-					"match": "\\b(extern)\\b\\s"
+					"begin": "\\b(extern)(\\()",
+					"beginCaptures": {
+						"1": {
+							"name": "keyword.control.extern.aecor"
+						},
+						"2": {
+							"name": "punctuation.begin.paren.aecor"
+						}
+					},
+					"end": "(\\))",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.paren.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "$self"
+						}
+					]
+				},
+				{
+					"name": "keyword.control.extern.aecor",
+					"match": "\\b(extern)\\b"
+				},
+				{
+					"name": "keyword.control.exits.aecor",
+					"match": "\\b(exits)\\b"
 				},
 				{
 					"name": "keyword.control.other.aecor",
