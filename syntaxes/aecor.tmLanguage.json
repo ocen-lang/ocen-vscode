@@ -1,0 +1,808 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "aecor",
+	"fileTypes": [
+		"aecor"
+	],
+	"patterns": [
+		{
+			"include": "#function"
+		},
+		{
+			"include": "#struct"
+		},
+		{
+			"include": "#variable-declaration"
+		},
+		{
+			"include": "#expressions"
+		},
+		{
+			"include": "#comment"
+		}
+	],
+	"repository": {
+		"expressions": {
+			"patterns": [
+				{
+					"include": "#comment"
+				},
+				{
+					"include": "#strings"
+				},
+				{
+					"include": "#this"
+				},
+				{
+					"include": "#constant"
+				},
+				{
+					"include": "#number"
+				},
+				{
+					"include": "#control"
+				},
+				{
+					"include": "#operators"
+				},
+				{
+					"include": "#indexing"
+				},
+				{
+					"include": "#call"
+				},
+				{
+					"include": "#variable-declaration"
+				},
+				{
+					"include": "#types"
+				},
+				{
+					"name": "meta.block.aecor",
+					"begin": "(\\{)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.brace.aecor"
+						}
+					},
+					"end": "(\\})",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.brace.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "$self"
+						}
+					]
+				}
+			]
+		},
+		"this": {
+			"name": "variable.language.this.aecor",
+			"match": "\\bthis\\b"
+		},
+		"variable-declaration": {
+			"name": "meta.variable.definition.aecor",
+			"comment": "FIXME: The identifier matching is identical to the lexer but more characters may be allowed in the future.",
+			"begin": "\\b(let)\\s+((?:\\w|_)(?:\\w|_|[0-9])*)\\s*(:)?",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.let.aecor"
+				},
+				"2": {
+					"name": "variable.other.aecor"
+				},
+				"3": {
+					"name": "punctuation.colon.aecor"
+				}
+			},
+			"end": "((?:\\+|\\-|\\*|\\/|%)?=)",
+			"endCaptures": {
+				"1": {
+					"name": "keyword.operator.assignment.aecor"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#types"
+				}
+			]
+		},
+		"struct": {
+			"patterns": [
+				{
+					"name": "meta.type.struct.aecor",
+					"match": "\\b(union|struct)\\s+((?:\\w|_)(?:\\w|_|[0-9])*)\\s+(\\bextern\\s+)?",
+					"captures": {
+						"1": {
+							"name": "keyword.type.struct.aecor"
+						},
+						"2": {
+							"name": "entity.name.type.struct.aecor"
+						},
+						"3": {
+							"name": "storage.modifier.linkage.aecor"
+						}
+					}
+				},
+				{
+					"name": "meta.block.struct.aecor",
+					"begin": "(?<=(?:union|struct).*?)(\\{)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.brace.aecor"
+						}
+					},
+					"end": "(\\})",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.brace.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#field"
+						},
+						{
+							"include": "$self"
+						},
+						{
+							"include": "#comment"
+						}
+					]
+				},
+				{
+					"name": "meta.type.generic-arguments.aecor",
+					"begin": "(?<=(?:union|struct|enum).*?)\\s*(<)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.angle-bracket.aecor"
+						}
+					},
+					"end": "(>)",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.angle-bracket.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#types"
+						}
+					]
+				},
+				{
+					"name": "meta.type.enum.body.aecor",
+					"begin": "(?<=\\benum\\b.*?)(\\{)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.brace.aecor"
+						}
+					},
+					"end": "(\\})",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.brace.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#enum-field"
+						},
+						{
+							"include": "$self"
+						}
+					]
+				},
+				{
+					"name": "meta.type.enum.aecor",
+					"match": "(enum)\\s+((?:\\w|_)(?:\\w|_|[0-9])*)\\s*(?:(:)\\s*((?:[ui](?:8|16|32|64))))?",
+					"captures": {
+						"1": {
+							"name": "keyword.type.enum.aecor"
+						},
+						"2": {
+							"name": "entity.name.type.enum.aecor"
+						},
+						"3": {
+							"name": "punctuation.colon.aecor"
+						},
+						"4": {
+							"name": "storage.type.numeric.aecor"
+						},
+						"5": {
+							"name": "punctuation.begin.brace.aecor"
+						}
+					}
+				}
+			]
+		},
+		"field": {
+			"name": "meta.field.aecor",
+			"begin": "((?:\\w|_)(?:\\w|_|[0-9])*)\\s*(:)",
+			"beginCaptures": {
+				"1": {
+					"name": "variable.field.aecor"
+				},
+				"2": {
+					"name": "punctuation.colon.aecor"
+				}
+			},
+			"end": "$",
+			"patterns": [
+				{
+					"include": "#types"
+				},
+				{
+					"include": "$self"
+				}
+			]
+		},
+		"enum-field": {
+			"patterns": [
+				{
+					"name": "meta.field.assigned.enum.aecor",
+					"match": "\\b((?:\\w|_)(?:\\w|_|[0-9])*)\\s*(=)",
+					"captures": {
+						"1": {
+							"name": "constant.language.aecor"
+						},
+						"2": {
+							"name": "keyword.operator.assignment.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#number"
+						}
+					]
+				},
+				{
+					"include": "#field"
+				},
+				{
+					"name": "meta.field.enum.aecor",
+					"match": "(?<!\\)\\s*)(?<!\\=\\s*)\\b((?:\\w|_)(?:\\w|_|[0-9])*)(?:\\s*$|\\s*\\(|\\,)",
+					"captures": {
+						"1": {
+							"name": "constant.language.aecor"
+						}
+					}
+				}
+			]
+		},
+		"types": {
+			"patterns": [
+				{
+					"name": "storage.type.primitive.aecor",
+					"match": "\\b(string|i8|i16|i32|i64|u8|u16|u32|u64|f32|f64|bool|char|void|untyped_ptr)\\b"
+				},
+				{
+					"match": "\\b(?:[A-Z]|_)(?:\\w|_|[0-9])*\\s*(::)",
+					"captures": {
+						"1": {
+							"name": "storage.type.primitive.aecor"
+						},
+						"2": {
+							"name": "punctuation.double-colon.aecor"
+						}
+					}
+				},
+				{
+					"name": "storage.type.generic.aecor",
+					"begin": "\\b((?:[A-Z]|_)(?:\\w|_|[0-9])*)\\s*(<)",
+					"beginCaptures": {
+						"1": {
+							"name": "storage.type.other.aecor"
+						},
+						"2": {
+							"name": "punctuation.begin.angle-bracket.aecor"
+						}
+					},
+					"end": "(>)",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.angle-bracket.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#types"
+						}
+					]
+				},
+				{
+					"name": "storage.type.other.aecor",
+					"match": "\\b(?:[A-Z]|_)(?:\\w|_|[0-9])*\\b"
+				},
+				{
+					"name": "storage.type.array.aecor",
+					"begin": "(\\[)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.square-bracket.aecor"
+						}
+					},
+					"end": "(\\])",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.square-bracket.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#types"
+						}
+					]
+				},
+				{
+					"name": "keyword.operator.address.aecor",
+					"match": "\\&"
+				},
+				{
+					"name": "punctuation.comma.generic-type-list.aecor",
+					"match": ","
+				}
+			]
+		},
+		"function": {
+			"patterns": [
+				{
+					"name": "meta.function.declaration.aecor",
+					"match": "((?:def)\\b)",
+					"captures": {
+						"1": {
+							"name": "keyword.function.aecor"
+						}
+					}
+				},
+				{
+					"name": "meta.function.argument-list.aecor",
+					"begin": "(?<=(?:def).*?)(\\()",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.bracket"
+						}
+					},
+					"end": "(\\))",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.bracket"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#argument-list"
+						}
+					]
+				},
+				{
+					"name": "meta.function.body.aecor",
+					"begin": "(?<=(?:def).*?)(\\{)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.brace.aecor"
+						}
+					},
+					"end": "(\\})",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.brace.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "$self"
+						}
+					]
+				}
+			]
+		},
+		"argument-list": {
+			"patterns": [
+				{
+					"include": "#this"
+				},
+				{
+					"name": "meta.argument.aecor",
+					"begin": "\\b((?:\\w|_)(?:\\w|_|[0-9])*)\\s*(:)",
+					"beginCaptures": {
+						"1": {
+							"name": "variable.parameter.aecor"
+						},
+						"2": {
+							"name": "punctuation.colon.aecor"
+						}
+					},
+					"end": "$|(,)|(?:(?=\\)))",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.comma.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#types"
+						}
+					]
+				},
+				{
+					"name": "punctuation.comma.aecor",
+					"match": ","
+				}
+			]
+		},
+		"parameter-list": {
+			"patterns": [
+				{
+					"name": "meta.parameter.aecor",
+					"begin": "\\b((?:\\w|_)(?:\\w|_|[0-9])*)\\s*(:)(?!\\:)",
+					"beginCaptures": {
+						"1": {
+							"name": "variable.parameter.name.aecor"
+						},
+						"2": {
+							"name": "punctuation.colon.aecor"
+						}
+					},
+					"end": "$|(,)|(?=\\))",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.comma.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "$self"
+						}
+					]
+				},
+				{
+					"name": "punctuation.comma.aecor",
+					"match": ","
+				},
+				{
+					"include": "$self"
+				}
+			]
+		},
+		"match-patterns": {
+			"patterns": [
+				{
+					"name": "meta.pattern.enum.aecor",
+					"match": "\\b((?:[A-Z]|_)(?:\\w|_|[0-9])*)(::)",
+					"captures": {
+						"1": {
+							"name": "storage.type.primitive.aecor"
+						},
+						"2": {
+							"name": "punctuation.double-colon.aecor"
+						}
+					}
+				},
+				{
+					"name": "meta.pattern.enum.variant.aecor",
+					"match": "\\b((?:[A-Z]|_)(?:\\w|_|[0-9])*)\\b",
+					"captures": {
+						"1": {
+							"name": "constant.language.aecor"
+						}
+					}
+				},
+				{
+					"begin": "(\\=\\>)",
+					"beginCaptures": {
+						"1": {
+							"name": "keyword.operator.fat-arrow.aecor"
+						}
+					},
+					"end": "$",
+					"patterns": [
+						{
+							"include": "$self"
+						}
+					]
+				},
+				{
+					"begin": "(\\|)",
+					"beginCaptures": {
+						"1": {
+							"name": "keyword.operator.or.aecor"
+						}
+					},
+					"end": "$",
+					"patterns": [
+						{
+							"include": "$self"
+						}
+					]
+				},
+				{
+					"include": "$self"
+				}
+			]
+		},
+		"indexing": {
+			"patterns": [
+				{
+					"name": "meta.index.struct.aecor",
+					"match": "\\b((?:\\w|_)(?:\\w|_|[0-9])*)\\s*(\\.)",
+					"captures": {
+						"1": {
+							"name": "variable.other.aecor"
+						},
+						"2": {
+							"name": "punctuation.period.aecor"
+						}
+					}
+				},
+				{
+					"name": "meta.index.namespace.aecor",
+					"match": "\\b((?:\\w|_)(?:\\w|_|[0-9])*)\\s*(::)\\b((?:\\w|_)(?:\\w|_|[0-9])*)\\b(?!\\()",
+					"captures": {
+						"1": {
+							"name": "storage.type.primitive.aecor"
+						},
+						"2": {
+							"name": "punctuation.double-colon.aecor"
+						},
+						"3": {
+							"name": "constant.language.aecor"
+						}
+					}
+				},
+				{
+					"name": "meta.index.namespace.aecor",
+					"match": "\\b((?:\\w|_)(?:\\w|_|[0-9])*)\\s*(::)",
+					"captures": {
+						"1": {
+							"name": "storage.type.primitive.aecor"
+						},
+						"2": {
+							"name": "punctuation.double-colon.aecor"
+						}
+					}
+				},
+				{
+					"name": "meta.index.array.aecor",
+					"begin": "(\\[)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.square-bracket.aecor"
+						}
+					},
+					"end": "(\\])",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.square-bracket.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "$self"
+						}
+					]
+				},
+				{
+					"name": "meta.index.other.aecor",
+					"match": "(\\.)",
+					"captures": {
+						"1": {
+							"name": "punctuation.period.aecor"
+						}
+					}
+				}
+			]
+		},
+		"call": {
+			"name": "meta.call.aecor",
+			"begin": "\\b((?:\\w|_)(?:\\w|_|[0-9])*)\\s*(\\()",
+			"beginCaptures": {
+				"1": {
+					"name": "entity.name.function.call.aecor"
+				},
+				"2": {
+					"name": "punctuation.begin.bracket.aecor"
+				}
+			},
+			"end": "(\\))",
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.end.bracket.aecor"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#parameter-list"
+				}
+			]
+		},
+		"control": {
+			"patterns": [
+				{
+					"name": "meta.control.aecor",
+					"match": "\\b(if|else|while|for|defer|match)\\b(?=.*?(?:\\{|$))",
+					"captures": {
+						"1": {
+							"name": "keyword.control.block.aecor"
+						}
+					}
+				},
+				{
+					"name": "keyword.control.aecor",
+					"match": "\\b(return|continue|break|yield)\\b"
+				},
+				{
+					"name": "keyword.control.other.aecor",
+					"match": "\\b(as)\\b\\s"
+				},
+				{
+					"name": "keyword.control.extern.aecor",
+					"match": "\\b(extern)\\b\\s"
+				},
+				{
+					"name": "keyword.control.other.aecor",
+					"match": "\\b(use)\\b"
+				},
+				{
+					"name": "keyword.control.other.aecor",
+					"match": "@compiler\\b"
+				},
+				{
+					"name": "meta.control.match.aecor",
+					"begin": "(?<=match.*?)(\\{)",
+					"beginCaptures": {
+						"2": {
+							"name": "punctuation.begin.brace.aecor"
+						}
+					},
+					"end": "(\\})",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.brace.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#match-patterns"
+						}
+					]
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.logic.aecor",
+					"match": "\\b(not|and|or)\\b"
+				},
+				{
+					"name": "keyword.operator.arithmetic.aecor",
+					"match": "(\\+|\\-|\\*|\\/|\\^|\\~|\\%)(=)?"
+				},
+				{
+					"name": "keyword.operator.comparison.aecor",
+					"match": "(((=|>|<)(=)?)|!=)"
+				},
+				{
+					"name": "keyword.operator.cast.aecor",
+					"match": "\\b(as)(\\!|\\?)"
+				},
+				{
+					"name": "punctuation.semicolon.aecor",
+					"match": ";"
+				},
+				{
+					"name": "keyword.operator.isnull.aecor",
+					"match": "\\?"
+				},
+				{
+					"name": "punctuation.colon.aecor",
+					"match": "\\:"
+				}
+			]
+		},
+		"constant": {
+			"match": "\\b(?:true|false|null)\\b",
+			"name": "constant.language.aecor"
+		},
+		"number": {
+			"patterns": [
+				{
+					"name": "constant.numeric.aecor",
+					"match": "\\b(?<!\\$)[0-9][0-9_]*(n|(?:[ui](?:8|16|32|64))|usize)?\\b(?!\\$)",
+					"captures": {
+						"1": {
+							"name": "storage.type.numeric.aecor"
+						}
+					}
+				}
+			],
+			"name": "constant.numeric.aecor"
+		},
+		"comment": {
+			"patterns": [
+				{
+					"begin": "(//)",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.comment.aecor"
+						}
+					},
+					"end": "$",
+					"name": "comment.line.double-slash.aecor"
+				}
+			]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.aecor",
+					"begin": "(\")",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.quote.double.aecor"
+						}
+					},
+					"end": "(\")",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.quote.double.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"name": "constant.character.escape.aecor",
+							"match": "\\\\."
+						}
+					]
+				},
+				{
+					"name": "string.quoted.single.aecor",
+					"begin": "(')",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.quote.single.aecor"
+						}
+					},
+					"end": "(')",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.quote.single.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"name": "constant.character.escape.aecor",
+							"match": "\\\\."
+						}
+					]
+				},
+				{
+					"name": "string.quoted.format.aecor",
+					"begin": "(`)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.begin.quote.backtick.aecor"
+						}
+					},
+					"end": "(`)",
+					"endCaptures": {
+						"1": {
+							"name": "punctuation.end.quote.backtick.aecor"
+						}
+					},
+					"patterns": [
+						{
+							"name": "constant.character.escape.aecor",
+							"match": "\\\\."
+						}
+					]
+				}
+			]
+		}
+	},
+	"scopeName": "source.aecor"
+}

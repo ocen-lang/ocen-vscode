@@ -1,0 +1,26 @@
+{
+    "name": "aecor-vsc",
+    "displayName": "aecor-vsc",
+    "description": "Syntax Highlighting for aecor",
+    "repository": "https://github.com/aecor-lang/aecor-vsc",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.70.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "aecor",
+            "aliases": ["aecor", "aecor"],
+            "extensions": [".ae"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "aecor",
+            "scopeName": "source.aecor",
+            "path": "./syntaxes/aecor.tmLanguage.json"
+        }]
+    }
+}
