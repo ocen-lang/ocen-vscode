@@ -277,7 +277,7 @@
 			"patterns": [
 				{
 					"name": "storage.type.primitive.aecor",
-					"match": "\\b(string|i8|i16|i32|i64|u8|u16|u32|u64|f32|f64|bool|char|void|untyped_ptr)\\b"
+					"match": "\\b(string|i8|fn|i16|i32|i64|u8|u16|u32|u64|f32|f64|bool|char|untyped_ptr)\\b"
 				},
 				{
 					"match": "\\b(?:[A-Z]|_)(?:\\w|_|[0-9])*\\s*(::)",
@@ -504,6 +504,14 @@
 							"include": "$self"
 						}
 					]
+				},
+				{
+					"match": "(\\|)",
+					"captures": {
+						"0": {
+							"name": "keyword.operator.or.aecor"
+						}
+					}
 				},
 				{
 					"include": "$self"
@@ -767,23 +775,33 @@
 					]
 				},
 				{
-					"name": "string.quoted.format.aecor",
-					"begin": "(`)",
-					"beginCaptures": {
-						"1": {
-							"name": "punctuation.begin.quote.backtick.aecor"
-						}
-					},
-					"end": "(`)",
-					"endCaptures": {
-						"1": {
-							"name": "punctuation.end.quote.backtick.aecor"
-						}
-					},
+					"name": "string.format.aecor",
+					"begin": "`",
+					"end": "`",
 					"patterns": [
 						{
-							"name": "constant.character.escape.aecor",
+							"name": "constant.character.escape.secor",
 							"match": "\\\\."
+						},
+						{
+							"name": "variable.other.aecor",
+							"begin": "\\{",
+							"beginCaptures": {
+								"0": {
+									"name": "keyword.operator.begin.brace.aecor"
+								}
+							},
+							"end": "\\}",
+							"endCaptures": {
+								"0": {
+									"name": "keyword.operator.end.brace.aecor"
+								}
+							},
+							"patterns": [
+								{
+									"include": "$self"
+								}
+							]
 						}
 					]
 				}
