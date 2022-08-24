@@ -351,7 +351,7 @@
 			"patterns": [
 				{
 					"name": "meta.function.declaration.aecor",
-					"match": "((?:def)\\b)",
+					"match": "\\b((?:def)\\b)",
 					"captures": {
 						"1": {
 							"name": "keyword.function.aecor"
@@ -360,7 +360,7 @@
 				},
 				{
 					"name": "meta.function.argument-list.aecor",
-					"begin": "(?<=(?:def).*?)(\\()",
+					"begin": "\\b(?<=(?:def).*?)(\\()",
 					"beginCaptures": {
 						"1": {
 							"name": "punctuation.begin.bracket"
@@ -380,7 +380,7 @@
 				},
 				{
 					"name": "meta.function.body.aecor",
-					"begin": "(?<=(?:def).*?)(\\{)",
+					"begin": "\\b(?<=(?:def).*?)(\\{)",
 					"beginCaptures": {
 						"1": {
 							"name": "punctuation.begin.brace.aecor"
