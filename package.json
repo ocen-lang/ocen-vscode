@@ -8,7 +8,8 @@
         "vscode": "^1.70.0"
     },
     "categories": [
-        "Programming Languages"
+        "Programming Languages",
+        "Snippets"
     ],
     "contributes": {
         "languages": [{
@@ -21,6 +22,12 @@
             "language": "aecor",
             "scopeName": "source.aecor",
             "path": "./syntaxes/aecor.tmLanguage.json"
-        }]
+        }],
+        "snippets": [
+            {
+                "language": "aecor",
+                "path": "./snippets/aecor.json"
+            }
+        ]
     }
 }

@@ -1,0 +1,37 @@
+{
+    "For Loop": {
+      "prefix": ["for", "for-range"],
+      "body": ["for let $1 = 0; $1 < $2; $1 += $3 {", "    $0", "}"],
+      "description": "A for loop."
+    },
+    "Match statement": {
+        "prefix": ["match"],
+        "body": [
+            "match $1 {",
+            "    $2 => {",
+            "        $3",
+            "    }",
+            "    else => {",
+            "        $4",
+            "    }",
+            "}"
+        ],
+        "description": "A for loop."
+    },
+    "Method": {
+        "prefix": ["method"],
+        "body": [
+            "def $1::$2(&this$3): $4 {",
+            "    $5",
+            "}"
+        ],
+        "description": "A for loop."
+    },
+    "Calloc": {
+        "prefix": ["calloc"],
+        "body": [
+            "calloc(1, sizeof($1)) as &$1;"
+        ],
+        "description": "Call calloc and cast"
+    }
+}
