@@ -506,20 +506,6 @@
 					]
 				},
 				{
-					"begin": "(\\|)",
-					"beginCaptures": {
-						"1": {
-							"name": "keyword.operator.or.aecor"
-						}
-					},
-					"end": "$",
-					"patterns": [
-						{
-							"include": "$self"
-						}
-					]
-				},
-				{
 					"include": "$self"
 				}
 			]

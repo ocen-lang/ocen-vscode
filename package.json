@@ -1,8 +1,8 @@
 {
     "name": "aecor-vsc",
-    "displayName": "aecor-vsc",
+    "displayName": "Aecor",
     "description": "Syntax Highlighting for aecor",
-    "repository": "https://github.com/aecor-lang/aecor-vsc",
+    "repository": "https://github.com/mustafaquraish/aecor-vsc",
     "version": "0.0.1",
     "engines": {
         "vscode": "^1.70.0"
