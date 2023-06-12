@@ -1,9 +1,10 @@
 {
-    "name": "aecor-vsc",
+    "name": "aecor",
     "displayName": "Aecor",
-    "description": "Syntax Highlighting for aecor",
+    "description": "Syntax Highlighting for Aecor",
     "repository": "https://github.com/mustafaquraish/aecor-vsc",
-    "version": "0.0.1",
+    "publisher": "MustafaQuraish",
+    "version": "1.0.0",
     "engines": {
         "vscode": "^1.70.0"
     },
@@ -12,17 +13,25 @@
         "Snippets"
     ],
     "contributes": {
-        "languages": [{
-            "id": "aecor",
-            "aliases": ["aecor", "aecor"],
-            "extensions": [".ae"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "aecor",
-            "scopeName": "source.aecor",
-            "path": "./syntaxes/aecor.tmLanguage.json"
-        }],
+        "languages": [
+            {
+                "id": "aecor",
+                "aliases": [
+                    "aecor"
+                ],
+                "extensions": [
+                    ".ae"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "aecor",
+                "scopeName": "source.aecor",
+                "path": "./syntaxes/aecor.tmLanguage.json"
+            }
+        ],
         "snippets": [
             {
                 "language": "aecor",
