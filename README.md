@@ -1,4 +1,3 @@
-# Aecor Language Support
+# `ocen` Syntax Highlighting
 
-Provides syntax highlighting for [aecor](https://github.com/mustafaquraish/aecor/).
-
+Provides syntax highlighting for [ocen](https://github.com/ocen-lang/ocen).

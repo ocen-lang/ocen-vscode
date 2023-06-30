@@ -1,8 +1,8 @@
 {
-    "name": "aecor",
-    "displayName": "Aecor",
-    "description": "Syntax Highlighting for Aecor",
-    "repository": "https://github.com/mustafaquraish/aecor-vsc",
+    "name": "ocen",
+    "displayName": "Ocen",
+    "description": "Syntax Highlighting for Ocen",
+    "repository": "https://github.com/ocen-lang/ocen-vscode",
     "publisher": "MustafaQuraish",
     "version": "1.0.0",
     "engines": {
@@ -15,27 +15,27 @@
     "contributes": {
         "languages": [
             {
-                "id": "aecor",
+                "id": "ocen",
                 "aliases": [
-                    "aecor"
+                    "ocen"
                 ],
                 "extensions": [
-                    ".ae"
+                    ".oc"
                 ],
                 "configuration": "./language-configuration.json"
             }
         ],
         "grammars": [
             {
-                "language": "aecor",
-                "scopeName": "source.aecor",
-                "path": "./syntaxes/aecor.tmLanguage.json"
+                "language": "ocen",
+                "scopeName": "source.ocen",
+                "path": "./syntaxes/ocen.tmLanguage.json"
             }
         ],
         "snippets": [
             {
-                "language": "aecor",
-                "path": "./snippets/aecor.json"
+                "language": "ocen",
+                "path": "./snippets/ocen.json"
             }
         ]
     }
