@@ -4,7 +4,8 @@
     "description": "Syntax Highlighting for Ocen",
     "repository": "https://github.com/ocen-lang/ocen-vscode",
     "publisher": "MustafaQuraish",
-    "version": "1.0.0",
+    "icon": "./icons/ocen-light.png",
+    "version": "1.0.3",
     "engines": {
         "vscode": "^1.70.0"
     },
@@ -22,6 +23,10 @@
                 "extensions": [
                     ".oc"
                 ],
+                "icon": {
+                    "light": "./icons/ocen-light.png",
+                    "dark": "./icons/ocen-dark.png"
+                },
                 "configuration": "./language-configuration.json"
             }
         ],

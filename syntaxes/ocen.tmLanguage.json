@@ -116,7 +116,7 @@
       "patterns": [
         {
           "name": "meta.type.struct.ocen",
-          "match": "\\b(union|struct)\\s+((?:\\w|_)(?:\\w|_|[0-9])*)\\s+(\\bextern\\s+)?",
+          "match": "\\b(union|struct)\\s+((?:\\w|_)(?:\\w|_|[0-9])*)\\s+\\b",
           "captures": {
             "1": {
               "name": "keyword.type.struct.ocen"
@@ -631,8 +631,8 @@
           "match": "\\b(return|continue|break|yield)\\b"
         },
         {
-          "name": "keyword.namespace.ocen",
-          "match": "\\b(namespace)\\b"
+          "name": "keyword.builtin.ocen",
+          "match": "\\b(namespace|struct|union|typedef)\\b"
         },
         {
           "name": "keyword.control.other.ocen",
