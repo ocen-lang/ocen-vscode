@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.0.4] - 2024-03-23
+
+- Add support for highlight attributes
+
 ## [1.0.3] - 2023-08-14
 
 - Add support for `typedef` keyword
