@@ -177,7 +177,7 @@
         },
         {
           "name": "meta.attribute.ocen",
-          "match": "\\[\\b(extern|format_variadic|formatting|exits|export)\\b\\s*(\\s+\".*?\")*\\]",
+          "match": "\\[\\b(extern|variadic_format|formatting|exits|export)\\b(\\s*.*)\\]",
           "captures": {
             "1": {
               "name": "keyword.name.attribute.ocen"

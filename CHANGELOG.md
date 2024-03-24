@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.0.5] - 2024-03-23
+
+- Fix attribute highlighting bugs, add `variadic_format` to known list of attrs
+
 ## [1.0.4] - 2024-03-23
 
 - Add support for highlight attributes
