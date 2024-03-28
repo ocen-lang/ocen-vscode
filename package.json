@@ -1,11 +1,11 @@
 {
     "name": "ocen",
     "displayName": "Ocen",
-    "description": "Syntax Highlighting for Ocen",
+    "description": "Ocen Language Support",
     "repository": "https://github.com/ocen-lang/ocen-vscode",
     "publisher": "MustafaQuraish",
-    "icon": "./icons/ocen-light.png",
-    "version": "1.0.5",
+    "icon": "icons/ocen-light.png",
+    "version": "1.1.0",
     "engines": {
         "vscode": "^1.70.0"
     },
@@ -13,6 +13,10 @@
         "Programming Languages",
         "Snippets"
     ],
+    "activationEvents": [
+        "onLanguage:ocen"
+    ],
+    "main": "out/client/src/extension.js",
     "contributes": {
         "languages": [
             {
@@ -24,8 +28,8 @@
                     ".oc"
                 ],
                 "icon": {
-                    "light": "./icons/ocen-light.png",
-                    "dark": "./icons/ocen-dark.png"
+                    "light": "icons/ocen-light.png",
+                    "dark": "icons/ocen-dark.png"
                 },
                 "configuration": "./language-configuration.json"
             }
@@ -42,6 +46,58 @@
                 "language": "ocen",
                 "path": "./snippets/ocen.json"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Ocen",
+            "properties": {
+                "ocenLanguageServer.maxNumberOfProblems": {
+                    "scope": "resource",
+                    "type": "number",
+                    "default": 100,
+                    "description": "Controls the maximum number of problems produced by the server."
+                },
+                "ocenLanguageServer.compiler.executablePath": {
+                    "scope": "resource",
+                    "type": "string",
+                    "default": "ocen",
+                    "description": "The path to the ocen compiler executable."
+                },
+                "ocenLanguageServer.maxCompilerInvocationTime": {
+                    "scope": "resource",
+                    "type": "number",
+                    "default": 5000,
+                    "description": "The maximum time in milliseconds that the compiler is allowed to take to process a file."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run lint && npm run compile",
+        "esbuild-base": "npx esbuild server/src/server.ts client/src/extension.ts --bundle --outdir=out --external:vscode --format=cjs --platform=node",
+        "esbuild": "npm run esbuild-base -- --sourcemap --minify",
+        "compile": "npm run esbuild",
+        "install-code-dep": "code --install-extension connor4312.esbuild-problem-matchers && code --install-extension dbaeumer.vscode-eslint",
+        "install": "cd server && npm install && cd ../client && npm install && cd .. && npm run install-code-dep",
+        "watch": "npm run esbuild-base -- --sourcemap --watch",
+        "lint": "npx eslint ./client/src ./server/src --ext .ts,.tsx",
+        "test": "sh ./scripts/e2e.sh"
+    },
+    "devDependencies": {
+        "@types/mocha": "^9.1.0",
+        "@types/node": "^16.11.7",
+        "@types/tmp": "^0.2.3",
+        "@typescript-eslint/eslint-plugin": "^5.19.0",
+        "@typescript-eslint/parser": "^5.19.0",
+        "esbuild": "^0.14.42",
+        "eslint": "^8.13.0",
+        "mocha": "^9.2.1",
+        "typescript": "^4.7.2",
+        "vsce": "^2.11.0"
+    },
+    "dependencies": {
+        "@types/vscode": "^1.67.0",
+        "ocen-lsp-server": "file:server",
+        "lsp-sample-client": "file:client"
     }
 }

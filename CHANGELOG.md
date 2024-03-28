@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.1.0] - 2024-03-28
+
+- Add basic LSP support: hover, document symbols, go-to-definition, basic completions and error-reporting
+- More snippets
+
 ## [1.0.5] - 2024-03-23
 
 - Fix attribute highlighting bugs, add `variadic_format` to known list of attrs
