@@ -21,7 +21,10 @@ import {
     SymbolKind,
     HoverParams,
     TypeDefinitionParams,
-    InsertTextFormat
+    InsertTextFormat,
+    Hover,
+    Location,
+    MarkupKind
 } from "vscode-languageserver/node";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -68,6 +71,20 @@ function getClickableFilePosition(textDocumentPositionParams: TextDocumentPositi
     }:${textDocumentPositionParams.position.character}`;
 }
 
+// FIXME: Type `Range` as return here has some weird errors...
+function getRange(obj: any): any {
+    return {
+        start: {
+            line: obj.start_line - 1,
+            character: obj.start_col - 1,
+        },
+        end: {
+            line: obj.end_line - 1,
+            character: obj.end_col - 1,
+        },
+    };
+}
+
 async function durationLogWrapper<T>(label: string, fn: () => Promise<T>): Promise<T> {
     console.log("Triggered " + label + ": ...");
     console.time(label);
@@ -105,6 +122,7 @@ connection.onInitialize((params: InitializeParams) => {
                 resolveProvider: false,
                 triggerCharacters: [".", ":"],
             },
+            referencesProvider: true,
             // inlayHintProvider: {
             //     resolveProvider: false,
             // },
@@ -159,17 +177,33 @@ async function goToDefinition(
 
             return {
                 uri: uri,
-                range: {
-                    start: {
-                        line: obj.start_line - 1,
-                        character: obj.start_col - 1,
-                    },
-                    end: {
-                        line: obj.end_line - 1,
-                        character: obj.end_col - 1,
-                    }
-                },
+                range: getRange(obj),
             };
+        }
+    });
+}
+
+async function getReferences(
+    document: TextDocument,
+    ocenOutput: string
+): Promise<HandlerResult<Location[], void> | undefined> {
+    return await durationLogWrapper(`getReferences`, async () => {
+        const lines = ocenOutput.split("\n").filter(l => l.length > 0);
+        for (const line of lines) {
+            const obj = JSON.parse(line);
+
+            const response = [];
+            for (const reference of obj) {
+                const uri = reference.file
+                    ? "file://" + (await fs.promises.realpath(reference.file))
+                    : document.uri;
+                reference.uri = uri;
+                response.push({
+                    uri: uri,
+                    range: getRange(reference),
+                });
+            }
+            return response;
         }
     });
 }
@@ -202,26 +236,8 @@ connection.onDocumentSymbol(async (request): Promise<DocumentSymbol[]> => {
                 name: symbol.name,
                 detail: symbol.detail,
                 kind: kind_map[symbol.kind],
-                range: {
-                    start: {
-                        line: symbol.range.start_line - 1,
-                        character: symbol.range.start_col - 1,
-                    },
-                    end: {
-                        line: symbol.range.end_line - 1,
-                        character: symbol.range.end_col - 1,
-                    },
-                },
-                selectionRange: {
-                    start: {
-                        line: symbol.selection_range.start_line - 1,
-                        character: symbol.selection_range.start_col - 1,
-                    },
-                    end: {
-                        line: symbol.selection_range.end_line - 1,
-                        character: symbol.selection_range.end_col - 1,
-                    },
-                },
+                range: getRange(symbol.range),
+                selectionRange: getRange(symbol.selection_range),
                 children: symbol.children.map(child => toSymbolDefinition(child)),
             };
         };
@@ -275,6 +291,26 @@ connection.onTypeDefinition(async (request: TypeDefinitionParams) => {
     );
 });
 
+connection.onReferences(async (request: TextDocumentPositionParams) => {
+    return await durationLogWrapper(
+        `onTypeDefinition ${getClickableFilePosition(request)}`,
+        async () => {
+            const document = documents.get(request.textDocument.uri);
+            if (!document) return;
+            const settings = await getDocumentSettings(request.textDocument.uri);
+            const text = document.getText();
+            const stdout = await runCompiler(
+                text,
+                `-r ${request.position.line + 1} ${request.position.character + 1}`,
+                settings,
+                fileURLToPath(document.uri)
+            );
+            return getReferences(document, stdout);
+        }
+    );
+});
+
+
 connection.onHover(async (request: HoverParams) => {
     return await durationLogWrapper(`onHover ${getClickableFilePosition(request)}`, async () => {
         const document = documents.get(request.textDocument.uri);
@@ -293,13 +329,28 @@ connection.onHover(async (request: HoverParams) => {
         for (const line of lines) {
             const obj = JSON.parse(line);
 
-            const contents = {
-                value: obj.hover,
-                language: "ocen",
-            };
+            if (obj.hover == "") {
+                return null;
+            }
 
-            if (obj.hover != "") {
-                return { contents };
+            if (obj.hover.includes("\n")) {
+                const first = obj.hover.split("\n")[0];
+                const markdown = obj.hover.split("\n").slice(1).join("\n");
+                const hoverString = `\`\`\`ocen\n${first}\n\`\`\`\n${markdown}`;
+                const contents = {
+                    value: hoverString,
+                    kind: MarkupKind.Markdown
+                };
+                const hover: Hover = { contents };
+                return hover;
+
+            } else {
+                const contents = {
+                    value: obj.hover,
+                    language: "ocen"
+                };
+                const hover: Hover = { contents };
+                return hover;
             }
         }
     });
@@ -490,16 +541,7 @@ async function validateTextDocument(textDocument: OcenTextDocument): Promise<voi
 
                 const diagnostic: Diagnostic = {
                     severity,
-                    range: {
-                        start: {
-                            line: obj.span.start_line - 1,
-                            character: obj.span.start_col - 1,
-                        },
-                        end: {
-                            line: obj.span.end_line - 1,
-                            character: obj.span.end_col - 1,
-                        },
-                    },
+                    range: getRange(obj.span),
                     message: obj.message,
                     source: textDocument.uri,
                 };

@@ -177,7 +177,7 @@
         },
         {
           "name": "meta.attribute.ocen",
-          "match": "\\[\\b(extern|variadic_format|formatting|exits|export)\\b(\\s*.*)\\]",
+          "match": "\\[\\b(extern|variadic_format|operator|formatting|exits|export)\\b(\\s*.*)\\]",
           "captures": {
             "1": {
               "name": "keyword.name.attribute.ocen"
@@ -631,7 +631,7 @@
       "patterns": [
         {
           "name": "meta.control.ocen",
-          "match": "\\b(if|then|else|while|for|defer|match|assert)\\b(?=.*?(?:\\{|$))",
+          "match": "\\b(if|then|else|while|for|in|defer|match|assert)\\b(?=.*?(?:\\{|$))",
           "captures": {
             "1": {
               "name": "keyword.control.block.ocen"

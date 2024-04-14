@@ -5,6 +5,7 @@
 
 import * as path from "path";
 import { workspace, ExtensionContext } from "vscode";
+import * as vscode from 'vscode';
 
 import {
     LanguageClient,
@@ -14,6 +15,14 @@ import {
 } from "vscode-languageclient/node";
 
 let client: LanguageClient;
+
+class DisposableLanguageClient implements vscode.Disposable {
+    constructor(private client: LanguageClient) {}
+
+    dispose() {
+        this.client.stop();
+    }
+}
 
 export function activate(context: ExtensionContext) {
     // The server is implemented in node
@@ -43,6 +52,16 @@ export function activate(context: ExtensionContext) {
         },
     };
 
+    // Register a command that the user can run from the command window
+    const disposable = vscode.commands.registerCommand('extension.rescanDocument', () => {
+        // Get the active text editor
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            documentOnChange();
+        }
+    });
+
+
     // Create the language client and start the client.
     client = new LanguageClient(
         "ocenLanguageServer",
@@ -53,6 +72,10 @@ export function activate(context: ExtensionContext) {
 
     // Start the client. This will also launch the server
     client.start();
+
+    // Create a disposable wrapper around the language client
+    const disposableClient = new DisposableLanguageClient(client);
+    context.subscriptions.push(disposable, disposableClient);
 }
 
 export function deactivate(): Thenable<void> | undefined {
@@ -60,4 +83,27 @@ export function deactivate(): Thenable<void> | undefined {
         return undefined;
     }
     return client.stop();
+}
+
+function documentOnChange() {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+        editor.edit(editBuilder => {
+            const position = new vscode.Position(0, 0);
+            editBuilder.insert(position, ' ');
+        }).then(success => {
+            if (success) {
+                editor.document.save();
+                editor.edit(editBuilder => {
+                    const position = new vscode.Position(0, 0);
+                    const range = new vscode.Range(position, position.translate(0, 1));
+                    editBuilder.delete(range);
+                }).then(success => {
+                    if (success) {
+                        editor.document.save();
+                    }
+                });
+            }
+        });
+    }
 }
