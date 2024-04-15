@@ -1,5 +1,15 @@
 # Change Log
 
+## [1.1.4] - 2024-04-14
+
+- Add "hints" and notes to diagnostic messages when available
+
+
+## [1.1.3] - 2024-04-14
+
+- Add documentation strings if available on hover in markdown
+- Add Reference provider to LSP
+
 ## [1.1.2] - 2024-04-01
 
 - Syntax highlighting for `in` operator

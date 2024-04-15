@@ -546,6 +546,18 @@ async function validateTextDocument(textDocument: OcenTextDocument): Promise<voi
                     source: textDocument.uri,
                 };
 
+                if (obj.extra_info) {
+                    diagnostic.relatedInformation = [{
+                        location: {
+                            uri: obj.extra_info.file
+                                ? "file://" + (await fs.promises.realpath(obj.extra_info.file))
+                                : textDocument.uri,
+                            range: getRange(obj.extra_info.span),
+                        },
+                        message: obj.extra_info.message,
+                    }];
+                }
+
                 // connection.console.log(diagnostic.message);
 
                 diagnostics.push(diagnostic);
