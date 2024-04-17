@@ -24,7 +24,13 @@ import {
     InsertTextFormat,
     Hover,
     Location,
-    MarkupKind
+    MarkupKind,
+    RenameParams,
+    WorkspaceEdit,
+    TextDocumentEdit,
+    TextEdit,
+    DocumentUri,
+    ResponseError
 } from "vscode-languageserver/node";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -130,6 +136,7 @@ connection.onInitialize((params: InitializeParams) => {
             typeDefinitionProvider: true,
             documentSymbolProvider: true,
             hoverProvider: true,
+            renameProvider: true,
             // documentFormattingProvider: true,
             // documentRangeFormattingProvider: true,
         },
@@ -204,6 +211,43 @@ async function getReferences(
                 });
             }
             return response;
+        }
+    });
+}
+
+async function getRenames(
+    document: TextDocument,
+    ocenOutput: string,
+    newName: string,
+): Promise<HandlerResult<WorkspaceEdit | ResponseError, void> | undefined> {
+    return await durationLogWrapper(`getRenames`, async () => {
+        // Check if `newName` is a valid C-like identifier
+        if (!newName.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) {
+            return new ResponseError(0, "Invalid identifier name");
+        }
+
+        const lines = ocenOutput.split("\n").filter(l => l.length > 0);
+        for (const line of lines) {
+            const obj = JSON.parse(line);
+            if (obj.length == 0) {
+                return new ResponseError(0, "No references found for rename");
+            }
+
+            const changes: { [uri: DocumentUri]: TextEdit[] } = {};
+            for (const rename of obj) {
+                const uri = rename.file
+                    ? "file://" + (await fs.promises.realpath(rename.file))
+                    : document.uri;
+
+                if (!changes[uri]) {
+                    changes[uri] = [];
+                }
+                changes[uri].push({
+                    range: getRange(rename),
+                    newText: newName,
+                });
+            }
+            return {changes};
         }
     });
 }
@@ -310,6 +354,24 @@ connection.onReferences(async (request: TextDocumentPositionParams) => {
     );
 });
 
+connection.onRenameRequest(async (request: RenameParams) => {
+    return await durationLogWrapper(
+        `onRenameRequest ${getClickableFilePosition(request)}`,
+        async () => {
+            const document = documents.get(request.textDocument.uri);
+            if (!document) return;
+            const settings = await getDocumentSettings(request.textDocument.uri);
+            const text = document.getText();
+            const stdout = await runCompiler(
+                text,
+                `--renames ${request.position.line + 1} ${request.position.character + 1}`,
+                settings,
+                fileURLToPath(document.uri)
+            );
+            return getRenames(document, stdout, request.newName);
+        }
+    );
+});
 
 connection.onHover(async (request: HoverParams) => {
     return await durationLogWrapper(`onHover ${getClickableFilePosition(request)}`, async () => {
