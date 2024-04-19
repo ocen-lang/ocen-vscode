@@ -1,5 +1,13 @@
 # Change Log
 
+## [1.1.7] - 2024-04-19
+
+- Add label details and documentation for completions.
+
+## [1.1.6] - 2024-04-17
+
+- Add support for "Signature Help". (Breaking change: Update compiler)
+
 ## [1.1.5] - 2024-04-17
 
 - Add support for "Rename Symbol". (Breaking change: Update compiler)

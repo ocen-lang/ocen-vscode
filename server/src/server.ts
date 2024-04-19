@@ -30,7 +30,8 @@ import {
     TextDocumentEdit,
     TextEdit,
     DocumentUri,
-    ResponseError
+    ResponseError,
+    SignatureHelpParams
 } from "vscode-languageserver/node";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -137,6 +138,9 @@ connection.onInitialize((params: InitializeParams) => {
             documentSymbolProvider: true,
             hoverProvider: true,
             renameProvider: true,
+            signatureHelpProvider: {
+                triggerCharacters: ["(", ","],
+            },
             // documentFormattingProvider: true,
             // documentRangeFormattingProvider: true,
         },
@@ -369,6 +373,36 @@ connection.onRenameRequest(async (request: RenameParams) => {
                 fileURLToPath(document.uri)
             );
             return getRenames(document, stdout, request.newName);
+        }
+    );
+});
+
+connection.onSignatureHelp(async (request: SignatureHelpParams) => {
+    return await durationLogWrapper(
+        `onRenameRequest ${getClickableFilePosition(request)}`,
+        async () => {
+            const document = documents.get(request.textDocument.uri);
+            if (!document) return;
+            const settings = await getDocumentSettings(request.textDocument.uri);
+            const text = document.getText();
+            const stdout = await runCompiler(
+                text,
+                `-s ${request.position.line + 1} ${request.position.character + 1}`,
+                settings,
+                fileURLToPath(document.uri)
+            );
+            const lines = stdout.split("\n").filter(l => l.length > 0);
+            for (const line of lines) {
+                const obj = JSON.parse(line);
+                if (obj.signatures.length == 0) {
+                    return null;
+                }
+                // If obj is an empty object, return null
+                if (Object.keys(obj).length === 0) {
+                    return null;
+                }
+                return obj;
+            }
         }
     );
 });
@@ -678,6 +712,8 @@ connection.onCompletion(async (request: TextDocumentPositionParams): Promise<Com
                                     ? CompletionItemKind.Function
                                     : CompletionItemKind.Field,
                                 data: index,
+                                labelDetails: completion.labelDetails,
+                                documentation: completion.documentation,
                             });
                             index++;
                         }
@@ -692,19 +728,6 @@ connection.onCompletion(async (request: TextDocumentPositionParams): Promise<Com
         }
     );
 });
-
-// // This handler resolves additional information for the item selected in
-// // the completion list.
-// connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-//     if (item.data === 1) {
-//         item.detail = "TypeScript details";
-//         item.documentation = "TypeScript documentation";
-//     } else if (item.data === 2) {
-//         item.detail = "JavaScript details";
-//         item.documentation = "JavaScript documentation";
-//     }
-//     return item;
-// });
 
 connection.languages.inlayHint.on((params: InlayHintParams) => {
     const document = documents.get(params.textDocument.uri) as OcenTextDocument;
