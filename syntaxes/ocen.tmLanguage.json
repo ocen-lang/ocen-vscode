@@ -177,7 +177,7 @@
         },
         {
           "name": "meta.attribute.ocen",
-          "match": "\\[\\b(extern|variadic_format|operator|formatting|exits|export)\\b(\\s*.*)\\]",
+          "match": "\\[\\b(extern|variadic_format|atomic|operator|formatting|exits|export)\\b(\\s*.*)\\]",
           "captures": {
             "1": {
               "name": "keyword.name.attribute.ocen"
@@ -207,6 +207,9 @@
             },
             {
               "include": "$self"
+            },
+            {
+              "include": "#comment"
             }
           ]
         },
@@ -687,7 +690,7 @@
         },
         {
           "name": "keyword.control.other.ocen",
-          "match": "@compiler\\b"
+          "match": "(@compiler|@new)\\b"
         },
         {
           "name": "meta.control.match.ocen",
@@ -815,7 +818,7 @@
       "patterns": [
         {
           "name": "string.quoted.double.ocen",
-          "begin": "(\")",
+          "begin": "(r?\")",
           "beginCaptures": {
             "1": {
               "name": "punctuation.begin.quote.double.ocen"
@@ -857,8 +860,18 @@
         },
         {
           "name": "string.format.ocen",
-          "begin": "`",
-          "end": "`",
+          "begin": "(`)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.begin.quote.double.ocen"
+            }
+          },
+          "end": "(`)",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.begin.quote.double.ocen"
+            }
+          },
           "patterns": [
             {
               "name": "constant.character.escape.secor",
@@ -888,8 +901,18 @@
         },
         {
           "name": "string.format.ocen",
-          "begin": "f\"",
-          "end": "\"",
+          "begin": "(f\")",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.begin.quote.double.ocen"
+            }
+          },
+          "end": "(\")",
+          "endCaptures": {
+            "1": {
+              "name": "punctuation.begin.quote.double.ocen"
+            }
+          },
           "patterns": [
             {
               "name": "constant.character.escape.secor",

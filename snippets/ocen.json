@@ -21,7 +21,7 @@
     "New": {
         "prefix": ["stdnew"],
         "body": [
-            "std::new<$1>($2)"
+            "mem::alloc<$1>($2)"
         ],
         "description": "Create a new allocated object"
     },

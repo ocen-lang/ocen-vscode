@@ -127,7 +127,11 @@ connection.onInitialize((params: InitializeParams) => {
             // Tell the client that this server doesn't support code completion. (yet)
             completionProvider: {
                 resolveProvider: false,
-                triggerCharacters: [".", ":"],
+                // . is for member access
+                // : is for namespace lookups
+                // " " is for import completions (only place where space works)
+                // @ is for compiler directives, TODO: add this in lsp mode
+                triggerCharacters: [".", ":", "@", " "],
             },
             referencesProvider: true,
             // inlayHintProvider: {
@@ -385,23 +389,28 @@ connection.onSignatureHelp(async (request: SignatureHelpParams) => {
             if (!document) return;
             const settings = await getDocumentSettings(request.textDocument.uri);
             const text = document.getText();
-            const stdout = await runCompiler(
-                text,
-                `-s ${request.position.line + 1} ${request.position.character + 1}`,
-                settings,
-                fileURLToPath(document.uri)
-            );
-            const lines = stdout.split("\n").filter(l => l.length > 0);
-            for (const line of lines) {
-                const obj = JSON.parse(line);
-                if (obj.signatures.length == 0) {
-                    return null;
+            try {
+                const stdout = await runCompiler(
+                    text,
+                    `-s ${request.position.line + 1} ${request.position.character + 1}`,
+                    settings,
+                    fileURLToPath(document.uri)
+                );
+                const lines = stdout.split("\n").filter(l => l.length > 0);
+                for (const line of lines) {
+                    const obj = JSON.parse(line);
+                    if (obj.signatures.length == 0) {
+                        return null;
+                    }
+                    // If obj is an empty object, return null
+                    if (Object.keys(obj).length === 0) {
+                        return null;
+                    }
+                    return obj;
                 }
-                // If obj is an empty object, return null
-                if (Object.keys(obj).length === 0) {
-                    return null;
-                }
-                return obj;
+            } catch (e) {
+                console.error(e);
+                return null;
             }
         }
     );

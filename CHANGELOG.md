@@ -1,5 +1,18 @@
 # Change Log
 
+## [1.2.0] - 2024-10-26
+
+- Add formatting for raw string literals
+- Improve syntax highlighing consistency for structs/enums
+
+## [1.1.9] - 2024-04-23
+
+- Trigger completion on more characters
+
+## [1.1.8] - 2024-04-19
+
+- Add support for `atomic` attribute
+
 ## [1.1.7] - 2024-04-19
 
 - Add label details and documentation for completions.
