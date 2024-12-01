@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.2.1] - 2024-12-01
+
+- Add support for std::vector shorthands
+
 ## [1.2.0] - 2024-10-26
 
 - Add formatting for raw string literals
