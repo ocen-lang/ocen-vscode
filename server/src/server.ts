@@ -36,6 +36,10 @@ import {
 
 import { TextDocument } from "vscode-languageserver-textdocument";
 
+import { execSync } from "child_process";
+
+
+
 interface OcenTextDocument extends TextDocument {
     ocenInlayHints?: InlayHint[];
 }
@@ -56,6 +60,29 @@ import {
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+
+function getOcenPath(): string {
+    try {
+        // // Determine the user's shell
+        // const shell = process.env.SHELL || "/bin/bash";
+
+        // // Source the shell config and print the PATH
+        // const command = `"${shell}" -lic 'echo $PATH'`;
+        // const path = execSync(command, { encoding: "utf-8" }).trim();
+
+        // return path;
+        const shell = process.env.SHELL || "/bin/bash";
+        const command = `"${shell}" -lic 'which ocen'`;
+        return execSync(command, { encoding: "utf-8" }).trim();
+    } catch (e) {
+        console.error("Failed to get Ocen Path from shell config:", e);
+        return process.env.PATH || ""; // Fallback to the existing PATH
+    }
+}
+
+// Override the PATH in the environment
+const ocenPath = getOcenPath();
+connection.console.log(`Using ocen at ${ocenPath}`);
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
@@ -92,16 +119,20 @@ function getRange(obj: any): any {
     };
 }
 
+// In durationLogWrapper, replace:
 async function durationLogWrapper<T>(label: string, fn: () => Promise<T>): Promise<T> {
-    console.log("Triggered " + label + ": ...");
-    console.time(label);
-    const result = await fn();
-
-    // This purposefully has the same prefix length as the "Triggered " log above,
-    // also does not add a newline at the end.
-    process.stdout.write("Finished  ");
-    console.timeEnd(label);
-    return new Promise<T>(resolve => resolve(result));
+    const start = Date.now();
+    connection.console.log(`Triggered ${label}...`);
+    try {
+        const result = await fn();
+        const duration = Date.now() - start;
+        connection.console.log(`Finished ${label} (${duration}ms)`);
+        return result;
+    } catch (error) {
+        const duration = Date.now() - start;
+        connection.console.error(`${label} failed after ${duration}ms: ${error}`);
+        throw error;
+    }
 }
 
 connection.onInitialize((params: InitializeParams) => {
@@ -409,7 +440,7 @@ connection.onSignatureHelp(async (request: SignatureHelpParams) => {
                     return obj;
                 }
             } catch (e) {
-                console.error(e);
+                connection.console.error(e);
                 return null;
             }
         }
@@ -476,7 +507,7 @@ interface ExampleSettings {
 const defaultSettings: ExampleSettings = {
     maxNumberOfProblems: 1000,
     maxCompilerInvocationTime: 5000,
-    compiler: { executablePath: "ocen" },
+    compiler: { executablePath: ocenPath },
 };
 
 let globalSettings: ExampleSettings = defaultSettings;
@@ -575,7 +606,7 @@ async function runCompiler(
         settings.compiler.executablePath
     } lsp ${show_path} ${flags} ${tmpFile.name}`;
 
-    console.info(`Running command: ${command}`);
+    connection.console.log(`Running command: ${command}`);
 
     let stdout = "";
     try {
@@ -589,7 +620,7 @@ async function runCompiler(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
         stdout = e.stdout;
-        console.error(e);
+        connection.console.error(e);
     }
 
     return stdout;
@@ -598,7 +629,7 @@ async function runCompiler(
 async function validateTextDocument(textDocument: OcenTextDocument): Promise<void> {
     return await durationLogWrapper(`validateTextDocument ${textDocument.uri}`, async () => {
         if (!hasDiagnosticRelatedInformationCapability) {
-            console.error("Trying to validate a document with no diagnostic capability");
+            connection.console.error("Trying to validate a document with no diagnostic capability");
             return;
         }
 
@@ -668,7 +699,7 @@ async function validateTextDocument(textDocument: OcenTextDocument): Promise<voi
                 diagnostics.push(diagnostic);
 
             } catch (e) {
-                console.error(e);
+                connection.console.error(e);
             }
         }
 
@@ -728,7 +759,7 @@ connection.onCompletion(async (request: TextDocumentPositionParams): Promise<Com
                         }
                         return output;
                     } catch (e) {
-                        console.error(e);
+                        connection.console.error(e);
                     }
                 }
             }
