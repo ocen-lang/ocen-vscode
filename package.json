@@ -5,7 +5,7 @@
     "repository": "https://github.com/ocen-lang/ocen-vscode",
     "publisher": "MustafaQuraish",
     "icon": "icons/ocen-light.png",
-    "version": "1.2.1",
+    "version": "1.2.4",
     "engines": {
         "vscode": "^1.70.0"
     },
@@ -22,6 +22,14 @@
             {
                 "command": "extension.rescanDocument",
                 "title": "Ocen: Rescan Document"
+            },
+            {
+                "command": "extension.restartLsp",
+                "title": "Ocen: Restart LSP"
+            },
+            {
+                "command": "extension.toggleLspBackend",
+                "title": "Ocen: Toggle LSP Backend"
             }
         ],
         "languages": [
@@ -74,6 +82,16 @@
                     "type": "number",
                     "default": 5000,
                     "description": "The maximum time in milliseconds that the compiler is allowed to take to process a file."
+                },
+                "ocen.ocenPath": {
+                    "type": "string",
+                    "default": "ocen",
+                    "description": "Path to the ocen binary executable."
+                },
+                "ocen.useNewBackend": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use the new LSP backend."
                 }
             }
         }
@@ -95,11 +113,10 @@
         "@types/tmp": "^0.2.3",
         "@typescript-eslint/eslint-plugin": "^5.19.0",
         "@typescript-eslint/parser": "^5.19.0",
+        "@vscode/vsce": "^2.11.0",
         "esbuild": "^0.14.42",
-        "eslint": "^8.13.0",
         "mocha": "^9.2.1",
-        "typescript": "^4.7.2",
-        "vsce": "^2.11.0"
+        "typescript": "^4.7.2"
     },
     "dependencies": {
         "@types/vscode": "^1.67.0",

@@ -1,5 +1,15 @@
 # Change Log
 
+## [1.2.4] - 2025-03-02
+
+- Make sure we use the same output channel for both LSP servers
+- Upgrade vscode-languageclient to 8.10 to [fix ordering issue](https://github.com/microsoft/vscode-languageserver-node/issues/1184)
+
+## [1.2.3] - 2025-02-26
+
+- Add support for `is` operator
+- Add option to toggle to new `ocen lsp-server` implementation instead of node server
+
 ## [1.2.1] - 2024-12-01
 
 - Add support for std::vector shorthands

@@ -679,6 +679,10 @@
           "match": "\\b(as)\\b\\s"
         },
         {
+          "name": "keyword.control.other.ocen",
+          "match": "\\b\\s+is\\s+\\b"
+        },
+        {
           "name": "keyword.control.extern.ocen",
           "begin": "\\b(extern)(\\()",
           "beginCaptures": {

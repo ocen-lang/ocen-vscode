@@ -15,6 +15,8 @@ import {
 } from "vscode-languageclient/node";
 
 let client: LanguageClient;
+// Create a single output channel that will be reused
+let outputChannel: vscode.OutputChannel;
 
 class DisposableLanguageClient implements vscode.Disposable {
     constructor(private client: LanguageClient) {}
@@ -25,35 +27,12 @@ class DisposableLanguageClient implements vscode.Disposable {
 }
 
 export function activate(context: ExtensionContext) {
-    // The server is implemented in node
-    const serverModule = context.asAbsolutePath(path.join("out", "server", "src", "server.js"));
-    // The debug options for the server
-    // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-    const debugOptions = { execArgv: ["--nolazy", "--inspect=6009"] };
+    outputChannel = outputChannel || vscode.window.createOutputChannel("Ocen Language Server");
 
-    // If the extension is launched in debug mode then the debug server options are used
-    // Otherwise the run options are used
-    const serverOptions: ServerOptions = {
-        run: { module: serverModule, transport: TransportKind.ipc },
-        debug: {
-            module: serverModule,
-            transport: TransportKind.ipc,
-            options: debugOptions,
-        },
-    };
-
-    // Options to control the language client
-    const clientOptions: LanguageClientOptions = {
-        // Register the server for plain text documents
-        documentSelector: [{ scheme: "file", language: "ocen" }],
-        synchronize: {
-            // Notify the server about file changes to '.clientrc files contained in the workspace
-            fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
-        },
-    };
+    startLanguageClient(context);
 
     // Register a command that the user can run from the command window
-    const disposable = vscode.commands.registerCommand('extension.rescanDocument', () => {
+    const rescanDocument = vscode.commands.registerCommand('extension.rescanDocument', () => {
         // Get the active text editor
         const editor = vscode.window.activeTextEditor;
         if (editor) {
@@ -61,8 +40,68 @@ export function activate(context: ExtensionContext) {
         }
     });
 
+    let isRestarting = false;
 
-    // Create the language client and start the client.
+    const restartLsp = vscode.commands.registerCommand('extension.restartLsp', () => {
+        if (isRestarting) return;
+        isRestarting = true;
+        deactivate().then(() => {
+            startLanguageClient(context);
+            isRestarting = false;
+        });
+    });
+
+    const toggleLspBackend = vscode.commands.registerCommand('extension.toggleLspBackend', () => {
+        if (isRestarting) return;
+        isRestarting = true;
+        const config = workspace.getConfiguration('ocen');
+        const useNewBackend = config.get<boolean>('useNewBackend', false);
+        config.update('useNewBackend', !useNewBackend, vscode.ConfigurationTarget.Global).then(() => {
+            vscode.window.showInformationMessage(`LSP backend switched to ${!useNewBackend ? 'new' : 'default'}.`);
+            deactivate().then(() => {
+                startLanguageClient(context);
+                isRestarting = false;
+            });
+        });
+    });
+
+    context.subscriptions.push(rescanDocument, restartLsp, toggleLspBackend);
+}
+
+function startLanguageClient(context: ExtensionContext) {
+    const config = workspace.getConfiguration('ocen');
+    const useNewBackend = config.get<boolean>('useNewBackend', false);
+    const ocenPath = config.get<string>('ocenPath', 'ocen');
+
+    let serverOptions: ServerOptions;
+
+    if (useNewBackend) {
+        serverOptions = {
+            run: { command: ocenPath, args: ['lsp-server'], transport: TransportKind.stdio },
+            debug: { command: ocenPath, args: ['lsp-server'], transport: TransportKind.stdio }
+        };
+    } else {
+        const serverModule = context.asAbsolutePath(path.join("out", "server", "src", "server.js"));
+        const debugOptions = { execArgv: ["--nolazy", "--inspect=6009"] };
+
+        serverOptions = {
+            run: { module: serverModule, transport: TransportKind.ipc },
+            debug: {
+                module: serverModule,
+                transport: TransportKind.ipc,
+                options: debugOptions,
+            },
+        };
+    }
+
+    const clientOptions: LanguageClientOptions = {
+        documentSelector: [{ scheme: "file", language: "ocen" }],
+        synchronize: {
+            fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
+        },
+        outputChannel: outputChannel
+    };
+
     client = new LanguageClient(
         "ocenLanguageServer",
         "Ocen language server",
@@ -70,12 +109,10 @@ export function activate(context: ExtensionContext) {
         clientOptions
     );
 
-    // Start the client. This will also launch the server
     client.start();
 
-    // Create a disposable wrapper around the language client
     const disposableClient = new DisposableLanguageClient(client);
-    context.subscriptions.push(disposable, disposableClient);
+    context.subscriptions.push(disposableClient);
 }
 
 export function deactivate(): Thenable<void> | undefined {
